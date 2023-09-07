@@ -1,5 +1,6 @@
 # Stellar Elements Technical Exercise
 Juan Pablo Moreno's answer for the Technical Exercise for Stellar Elements company.
+It includes API tests, Load test and Web UI tests
 
 ## Installation
 Assuming you are using a MAC laptop, follow the steps below:
@@ -14,12 +15,15 @@ Assuming you are using a MAC laptop, follow the steps below:
 ## Execution
 ### Running Backend tests (API tests)
 Go to terminal (with the virtual environment activated) and execute the following command:
-- pytest --html=report.html --self-contained-html
-<br>This runs the tests and creates a report.html file. Open it to see the results.
+- pytest --html=report_be.html --self-contained-html api_tests/tests/test_api.py 
+<br>This runs the tests and creates a report_be.html file. Open it to see the results.
 ### Running load test
 Go to terminal (with the virtual environment activated) and execute the following command:
 - locust -f load_tests/load_testing.py 
 - go to browser and open http://0.0.0.0:8089
 - set number of users = 160 and Spawn rate 10. click on Start swarming
 - wait... after 17 seconds, once the users reach the 160 the api call starts to fail with error 140	GET	/api/productsList	HTTPError('503 Server Error: Service Unavailable for url: /api/productsList')
-
+### Running web tests
+Go to terminal (with the virtual environment activated) and execute the following command:
+- pytest --html=report_web.html --self-contained-html web_tests/tests/test_contact_page.py 
+<br>This runs the tests and creates a report_web.html file. Open it to see the results.

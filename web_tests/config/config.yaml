@@ -1,0 +1,10 @@
+implicitly_wait: 3
+explicit_wait: 8
+env: 'QA'
+browser: 'chrome'
+headless: False
+test_data:
+  QA:
+    base_url: "https://adkcw-wp.adkalpha.com/contact/"
+  PROD:
+    base_url: "prod_url"

@@ -1,4 +1,8 @@
+PyYAML
 locust
+names
 requests
 pytest
 pytest-html
+selenium
+webdriver_manager
