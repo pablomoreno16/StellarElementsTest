@@ -1,0 +1,4 @@
+locust
+requests
+pytest
+pytest-html
