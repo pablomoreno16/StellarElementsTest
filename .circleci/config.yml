@@ -36,7 +36,7 @@ commands:
           path: /home/circleci/application/evidences/
           destination: evidences
       - store_artifacts:
-          path: report.html
+          path: report_fe.html
 version: 2.1
 
 orbs:
