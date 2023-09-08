@@ -1,0 +1,73 @@
+commands:
+  install-chrome:
+    description: Installs Google Chrome
+    steps:
+      - run:
+          name: Install chrome
+          command: |
+            echo "installing google chrome"
+            wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo add-apt-repository "deb http://dl.google.com/linux/chrome/deb/ stable main"
+            sudo apt update
+            sudo apt install google-chrome-stable
+  execute-be-tests:
+    description: Execute the backend tests cases
+    steps:
+      - run:
+          name: Execute tests
+          command: |
+            echo "executing Backend test cases"
+            pytest --html=report_be.html --self-contained-html --junitxml=test-results/junit.xml api_tests/tests/test_api.py
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: report_be.html
+  execute-fe-tests:
+    description: Execute the FE tests cases
+    steps:
+      - run:
+          name: Execute frontend tests
+          command: |
+            echo "executing Frontend test cases"
+            pytest --html=report_fe.html --self-contained-html --junitxml=test-results-fe/junit.xml web_tests/tests/test_contact_page.py
+      - store_test_results:
+          path: test-results-fe
+      - store_artifacts:
+          path: /home/circleci/application/evidences/
+          destination: evidences
+      - store_artifacts:
+          path: report.html
+version: 2.1
+
+orbs:
+  python: circleci/python@2.1.1
+
+jobs:
+  be-tests:
+    working_directory: ~/application
+    docker:
+      - image: cimg/python:3.10.2
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
+          pip-dependency-file: requirements.txt
+      - execute-be-tests
+  fe-tests:
+    working_directory: ~/application
+    docker:
+      - image: cimg/python:3.10.2
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
+          pip-dependency-file: requirements.txt
+      - install-chrome
+      - execute-fe-tests
+workflows:
+  execute_be_tests:
+    jobs:
+      - be-tests
+  execute_fe_tests:
+    jobs:
+      - fe-tests
