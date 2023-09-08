@@ -1,26 +1,73 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/configuration-reference
+commands:
+  install-chrome:
+    description: Installs Google Chrome
+    steps:
+      - run:
+          name: Install chrome
+          command: |
+            echo "installing google chrome"
+            wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo add-apt-repository "deb http://dl.google.com/linux/chrome/deb/ stable main"
+            sudo apt update
+            sudo apt install google-chrome-stable
+  execute-be-tests:
+    description: Execute the backend tests cases
+    steps:
+      - run:
+          name: Execute tests
+          command: |
+            echo "executing Backend test cases"
+            pytest --html=report_be.html --self-contained-html --junitxml=test-results/junit.xml api_tests/tests/test_api.py
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: report_be.html
+  execute-fe-tests:
+    description: Execute the FE tests cases
+    steps:
+      - run:
+          name: Execute frontend tests
+          command: |
+            echo "executing Frontend test cases"
+            pytest --html=report_fe.html --self-contained-html --junitxml=test-results-fe/junit.xml web_tests/tests/test_contact_page.py
+      - store_test_results:
+          path: test-results-fe
+      - store_artifacts:
+          path: /home/circleci/application/evidences/
+          destination: evidences
+      - store_artifacts:
+          path: report.html
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/configuration-reference/#jobs
+orbs:
+  python: circleci/python@2.1.1
+
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/configuration-reference/#executor-job
+  be-tests:
+    working_directory: ~/application
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/configuration-reference/#steps
+      - image: cimg/python:3.10.2
     steps:
       - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/configuration-reference/#workflows
+      - python/install-packages:
+          pkg-manager: pip
+          pip-dependency-file: requirements.txt
+      - execute-be-tests
+  fe-tests:
+    working_directory: ~/application
+    docker:
+      - image: cimg/python:3.10.2
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
+          pip-dependency-file: requirements.txt
+      - install-chrome
+      - execute-fe-tests
 workflows:
-  say-hello-workflow:
+  execute_be_tests:
     jobs:
-      - say-hello
+      - be-tests
+  execute_fe_tests:
+    jobs:
+      - fe-tests
